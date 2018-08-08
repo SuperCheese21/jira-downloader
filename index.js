@@ -1,22 +1,19 @@
-const rp = require('request-promise');
-const credentials = require('./credentials.json');
-const api = '/rest/api/latest/issue/CISCOSYS-872';
-const auth = 'Basic ' + new Buffer(
-    credentials.username + ':' + credentials.password
-).toString('base64');
+const fs = require('fs');
 
-const options = {
-    uri: credentials.domain + api,
-    headers: {
-        'User-Agent': 'Request-Promise',
-        'Authorization': auth
-    },
-    json: true
-};
+const getSearch = require('./getIssues');
+const parseResponse = require('./parse');
 
-rp(options)
+getSearch('project = CISCOSYS AND resolution = Unresolved ORDER BY priority DESC, updated DESC')
     .then(body => {
-        console.log(JSON.stringify(body, null, '\t'));
+        console.log('Issues: ' + body.issues.length);
+        body.issues.forEach(issue => {
+            console.log(' ' + issue.key);
+        });
+        const attachments = parseResponse(body.issues);
+        fs.writeFile('./attachments.json', JSON.stringify(attachments, null, '\t'), err => {
+            if (err) console.error(err.message);
+            else console.log('Data written to file');
+        });
     })
     .catch(err => {
         console.error(err.message);
