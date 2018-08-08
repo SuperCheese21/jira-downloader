@@ -1,12 +1,8 @@
 const { getSearch, downloadFiles } = require('./getIssues');
 const parseResponse = require('./parse');
 
-getSearch('project = CISCOSYS AND resolution = Unresolved ORDER BY priority DESC, updated DESC')
+getSearch('project = CISCOBUG AND issuetype = Bug AND "Falcon ID (Cisco bugs)" = " ETSG_1805_1474_LME-105784_shaagrah "')
     .then(body => {
-        console.log('Issues: ' + body.issues.length);
-        body.issues.forEach(issue => {
-            console.log(' ' + issue.key);
-        });
         const files = parseResponse(body.issues);
         downloadFiles(files);
     })
