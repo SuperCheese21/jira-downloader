@@ -1,0 +1,19 @@
+{
+  "name": "jira-downloader",
+  "version": "1.0.0",
+  "description": "Bulk attachment downloader for JIRA issues",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SuperCheese21/jira-downloader.git"
+  },
+  "author": "Ethan Shields",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/SuperCheese21/jira-downloader/issues"
+  },
+  "homepage": "https://github.com/SuperCheese21/jira-downloader#readme"
+}
