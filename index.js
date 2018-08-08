@@ -1,6 +1,4 @@
-const fs = require('fs');
-
-const getSearch = require('./getIssues');
+const { getSearch, downloadFiles } = require('./getIssues');
 const parseResponse = require('./parse');
 
 getSearch('project = CISCOSYS AND resolution = Unresolved ORDER BY priority DESC, updated DESC')
@@ -9,11 +7,8 @@ getSearch('project = CISCOSYS AND resolution = Unresolved ORDER BY priority DESC
         body.issues.forEach(issue => {
             console.log(' ' + issue.key);
         });
-        const attachments = parseResponse(body.issues);
-        fs.writeFile('./attachments.json', JSON.stringify(attachments, null, '\t'), err => {
-            if (err) console.error(err.message);
-            else console.log('Data written to file');
-        });
+        const files = parseResponse(body.issues);
+        downloadFiles(files);
     })
     .catch(err => {
         console.error(err.message);

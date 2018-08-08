@@ -1,4 +1,6 @@
+const fs = require('fs');
 const rp = require('request-promise');
+
 const credentials = require('./credentials.json');
 const api = '/rest/api/latest';
 const headers = {
@@ -7,6 +9,8 @@ const headers = {
         credentials.username + ':' + credentials.password
     ).toString('base64')
 };
+
+const MAX_RESULTS = 500;
 
 /**
  * Searches for issues matching a jql pattern
@@ -19,7 +23,7 @@ async function getSearch(jql) {
         qs: {
             jql: jql,
             startAt: 0,
-            maxResults: 500,
+            maxResults: MAX_RESULTS,
             fields: 'key,attachment'
         },
         headers: headers,
@@ -28,4 +32,13 @@ async function getSearch(jql) {
     return await rp(options);
 }
 
-module.exports = getSearch;
+async function downloadFiles(issues) {
+    issues.forEach(issue => {
+        fs.mkdirSync('./output/attachments/' + issue.key);
+    });
+}
+
+module.exports = {
+    getSearch,
+    downloadFiles
+};
