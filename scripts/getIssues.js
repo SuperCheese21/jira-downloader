@@ -1,7 +1,7 @@
 const fs = require('fs');
 const rp = require('request-promise');
 
-const credentials = require('./credentials.json');
+const credentials = require('../config/credentials.json');
 const api = '/rest/api/latest';
 const headers = {
     'User-Agent': 'Request-Promise',

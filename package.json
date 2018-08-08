@@ -2,11 +2,11 @@
   "name": "jira-downloader",
   "version": "1.0.0",
   "description": "Bulk attachment downloader for JIRA issues",
-  "main": "index.js",
+  "main": "./scripts/index.js",
   "scripts": {
-    "prestart": "node ./clean.js",
-    "start": "node ./index.js",
-    "test": "./node_modules/.bin/eslint index.js"
+    "prestart": "node ./scripts/clean.js",
+    "start": "node ./scripts/index.js",
+    "test": "./node_modules/.bin/eslint ./scripts/index.js"
   },
   "repository": {
     "type": "git",
