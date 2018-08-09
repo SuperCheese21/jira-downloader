@@ -57,6 +57,7 @@ async function downloadFiles(issues) {
 async function download(url, path) {
     const options = {
         uri: url,
+        encoding: null,
         headers: headers
     };
     return await rp(options)
