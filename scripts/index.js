@@ -1,6 +1,6 @@
 const readline = require('readline');
 
-const getFiles = require('./getIssues');
+const getFiles = require('./getFiles');
 
 // Create readline interface
 const rl = readline.createInterface({

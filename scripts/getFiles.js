@@ -34,7 +34,7 @@ async function getFiles(jql) {
         json: true
     };
 
-    console.log('Fetching issue data...');
+    console.log('\nFetching issue data...');
 
     rp(options)
         .then(body => {
@@ -43,7 +43,7 @@ async function getFiles(jql) {
             _downloadFiles(files);
         })
         .catch(err => {
-            console.error(err.message);
+            console.error('  Unable to fetch issues. Your JQL string may be invalid.');
         });
 }
 
