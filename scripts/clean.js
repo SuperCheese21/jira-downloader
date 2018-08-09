@@ -4,9 +4,11 @@ const PATH = './output/attachments/';
 
 fs.readdirSync(PATH).forEach(dir => {
     if (dir[0] !== '.') {
-        fs.rmdir(PATH + dir, err => {
-            if (err) console.error(err.message);
-            else console.log('Removed ' + dir);
+        fs.readdirSync(PATH + dir).forEach(file => {
+            fs.unlinkSync(PATH + dir + '/' + file);
+            console.log(' Removed ' + file);
         });
+        fs.rmdirSync(PATH + dir);
+        console.log('Removed ' + dir);
     }
 });

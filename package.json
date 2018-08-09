@@ -4,8 +4,9 @@
   "description": "Bulk attachment downloader for JIRA issues",
   "main": "./scripts/index.js",
   "scripts": {
-    "prestart": "node ./scripts/clean.js",
+    "prestart": "npm run clean",
     "start": "node ./scripts/index.js",
+    "clean": "node ./scripts/clean.js",
     "test": "./node_modules/.bin/eslint ./scripts/index.js"
   },
   "repository": {
