@@ -1,14 +1,18 @@
 const fs = require('fs');
 const readline = require('readline');
 
+// Create readline interface
 const rl = readline.createInterface({
     input: process.stdin,
     output: process.stdout
 });
 
+// Ask user if they want to clear out attachments directory
 rl.question('Do you want to delete everything in the attachments folder? (y/n): ', answer => {
     if (answer[0].toLowerCase() ===  'y') {
+        console.time('time');
         cleanDirectory('./output/attachments');
+        console.timeEnd('time');
     }
     rl.close();
 })

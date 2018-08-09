@@ -2,6 +2,8 @@ const fs = require('fs');
 const rp = require('request-promise');
 
 const credentials = require('../config/credentials.json');
+const parseResponse = require('./parse');
+
 const api = '/rest/api/latest';
 const headers = {
     'User-Agent': 'Request-Promise',
@@ -9,6 +11,7 @@ const headers = {
         credentials.username + ':' + credentials.password
     ).toString('base64')
 };
+const log = fs.createWriteStream('./output/log.txt');   // Create log write stream
 
 const MAX_RESULTS = 500;    // Maximum number of issues to return
 
@@ -17,7 +20,7 @@ const MAX_RESULTS = 500;    // Maximum number of issues to return
  * @param  {String} jql JQL pattern to search
  * @return {Promise}    Promise object for search results
  */
-async function getSearch(jql) {
+async function getFiles(jql) {
     const options = {
         uri: credentials.domain + api + '/search',
         qs: {
@@ -29,24 +32,43 @@ async function getSearch(jql) {
         headers: headers,
         json: true
     };
-    return await rp(options);
+
+    console.time('time');   // Start timer
+
+    rp(options)
+        .then(body => {
+            const files = parseResponse(body.issues);
+            _downloadFiles(files);
+        })
+        .catch(err => {
+            console.error(err.message);
+        });
 }
 
 /**
  * Creates a directory for each issue and initiates downloads
  * @param  {Array} issues  Array of issues with download links
  */
-async function downloadFiles(issues) {
+async function _downloadFiles(issues) {
+    // Loop through each issue in issues list
     for (const issue of issues) {
-        console.log('Issue ' + issue.id + ' (' + issue.key + ')');
+        _printData('\n' + issue.key, console.log);
         const directory = './output/attachments/' + issue.key;
-        fs.mkdirSync(directory);
+
+        fs.mkdirSync(directory);    // Create directory
+
+        // Loop through each attachment in attachments list
         for (const file of issue.list) {
-            console.log(' Downloading ' + file.filename + ' (' + file.size + ' bytes)...');
-            await download(file.content, directory + '/' + file.filename);
-            console.log('  Data written to ' + file.filename);
+            const fileSize = Math.round(file.size / 1000);
+            _printData('  Downloading ' + file.filename + ' (' + fileSize + ' kb)...', console.log);
+            await _download(file.content, directory + '/' + file.filename);
+            _printData('    Data written to ' + file.filename, console.log);
         }
     }
+
+    log.end();  // End write stream
+
+    console.timeEnd('time');    // Stop timer
 }
 
 /**
@@ -54,7 +76,7 @@ async function downloadFiles(issues) {
  * @param  {String} url  File URL
  * @param  {String} path Path to write file to
  */
-async function download(url, path) {
+async function _download(url, path) {
     const options = {
         uri: url,
         encoding: null,
@@ -63,15 +85,22 @@ async function download(url, path) {
     return await rp(options)
         .then(body => {
             fs.writeFile(path, body, err => {
-                if (err) console.error(err.message);
+                if (err) _printData(err.message, console.error);
             });
         })
         .catch(err => {
-            console.error(err.message);
+            _printData(err.message, console.error);
         });
 }
 
-module.exports = {
-    getSearch,
-    downloadFiles
-};
+/**
+ * Prints data to both the log and console
+ * @param       {String} content        Data to print
+ * @param       {function} consoleWrite Console print function
+ */
+function _printData(content, consoleWrite) {
+    log.write(content + '\n');
+    consoleWrite(content);
+}
+
+module.exports = getFiles;
