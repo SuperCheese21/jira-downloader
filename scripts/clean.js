@@ -1,14 +1,19 @@
 const fs = require('fs');
 
-const PATH = './output/attachments/';
+const PATH = './output/attachments';
 
-fs.readdirSync(PATH).forEach(dir => {
-    if (dir[0] !== '.') {
-        fs.readdirSync(PATH + dir).forEach(file => {
-            fs.unlinkSync(PATH + dir + '/' + file);
-            console.log(' Removed ' + file);
-        });
-        fs.rmdirSync(PATH + dir);
-        console.log('Removed ' + dir);
-    }
-});
+function cleanDirectory(path) {
+    fs.readdirSync(path).forEach(item => {
+        const fullPath = path + '/' + item;
+        if (fs.lstatSync(fullPath).isDirectory()) {
+            cleanDirectory(fullPath);
+            fs.rmdirSync(fullPath);
+            console.log('Removed ' + item);
+        } else {
+            fs.unlinkSync(fullPath);
+            console.log(' Removed ' + item);
+        }
+    });
+}
+
+cleanDirectory(PATH);
