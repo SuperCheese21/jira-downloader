@@ -53,7 +53,9 @@ async function getFiles(jql) {
  */
 async function _downloadFiles(issues) {
     const log = fs.createWriteStream(LOG_PATH);   // Create log write stream
-    const bar = new _cliProgress.Bar({}, _cliProgress.Presets.shades_classic);  // Create CLI progress bar
+    const bar = new _cliProgress.Bar({
+        format: '[{bar}] {percentage}% | ETA: {eta_formatted} | Elapsed: {duration_formatted} | Issue {value}/{total} - {issue}'
+    }, _cliProgress.Presets.shades_classic);  // Create CLI progress bar
 
     console.log('\nDownloading attachments for ' + issues.length + ' issues...');
 
@@ -74,7 +76,9 @@ async function _downloadFiles(issues) {
             log.write('    Data written to ' + file.filename + '\n');
         }
 
-        bar.update(index + 1);  // Update progress bar
+        bar.update(index + 1, {
+            issue: issue.key
+        });
     }
 
     bar.stop(); // End progress bar
