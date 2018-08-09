@@ -20,6 +20,7 @@
   },
   "homepage": "https://github.com/SuperCheese21/jira-downloader#readme",
   "dependencies": {
+    "cli-progress": "^2.0.0",
     "request": "^2.87.0",
     "request-promise": "^4.2.2"
   },

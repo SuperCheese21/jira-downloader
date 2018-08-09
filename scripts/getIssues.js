@@ -1,3 +1,4 @@
+const _cliProgress = require('cli-progress');
 const fs = require('fs');
 const rp = require('request-promise');
 
@@ -11,8 +12,8 @@ const headers = {
         credentials.username + ':' + credentials.password
     ).toString('base64')
 };
-const log = fs.createWriteStream('./output/log.txt');   // Create log write stream
 
+const LOG_PATH = './output/log.txt';
 const MAX_RESULTS = 500;    // Maximum number of issues to return
 
 /**
@@ -33,8 +34,6 @@ async function getFiles(jql) {
         json: true
     };
 
-    console.time('time');   // Start timer
-
     rp(options)
         .then(body => {
             const files = parseResponse(body.issues);
@@ -50,9 +49,16 @@ async function getFiles(jql) {
  * @param  {Array} issues  Array of issues with download links
  */
 async function _downloadFiles(issues) {
+    const log = fs.createWriteStream(LOG_PATH);   // Create log write stream
+    const bar = new _cliProgress.Bar({}, _cliProgress.Presets.shades_classic);  // Create CLI progress bar
+
+    console.log('\nDownloading attachments for ' + issues.length + ' issues...');
+
+    bar.start(issues.length, 0);    // Start progress bar
+
     // Loop through each issue in issues list
-    for (const issue of issues) {
-        _printData('\n' + issue.key, console.log);
+    for (const [index, issue] of issues.entries()) {
+        log.write('\n' + issue.key + '\n');
         const directory = './output/attachments/' + issue.key;
 
         fs.mkdirSync(directory);    // Create directory
@@ -60,23 +66,27 @@ async function _downloadFiles(issues) {
         // Loop through each attachment in attachments list
         for (const file of issue.list) {
             const fileSize = Math.round(file.size / 1000);
-            _printData('  Downloading ' + file.filename + ' (' + fileSize + ' kb)...', console.log);
-            await _download(file.content, directory + '/' + file.filename);
-            _printData('    Data written to ' + file.filename, console.log);
+            log.write('  Downloading ' + file.filename + ' (' + fileSize + ' kb)...' + '\n');
+            await _download(file.content, directory + '/' + file.filename, log);
+            log.write('    Data written to ' + file.filename + '\n');
         }
+
+        bar.update(index + 1);  // Update progress bar
     }
 
+    bar.stop(); // End progress bar
     log.end();  // End write stream
 
-    console.timeEnd('time');    // Stop timer
+    console.log('\nDone\nCheck ' + LOG_PATH + ' for more info');
 }
 
 /**
  * Downloads file from url to specified path
- * @param  {String} url  File URL
- * @param  {String} path Path to write file to
+ * @param  {String} url      File URL
+ * @param  {String} path     Path to write file to
+ * @param  {WriteStream} log Log write stream
  */
-async function _download(url, path) {
+async function _download(url, path, log) {
     const options = {
         uri: url,
         encoding: null,
@@ -85,22 +95,12 @@ async function _download(url, path) {
     return await rp(options)
         .then(body => {
             fs.writeFile(path, body, err => {
-                if (err) _printData(err.message, console.error);
+                if (err) log.write(err.message + '\n');
             });
         })
         .catch(err => {
-            _printData(err.message, console.error);
+            log.write(err.message + '\n');
         });
-}
-
-/**
- * Prints data to both the log and console
- * @param       {String} content        Data to print
- * @param       {function} consoleWrite Console print function
- */
-function _printData(content, consoleWrite) {
-    log.write(content + '\n');
-    consoleWrite(content);
 }
 
 module.exports = getFiles;

@@ -9,7 +9,7 @@ const rl = readline.createInterface({
 
 // Ask user if they want to clear out attachments directory
 rl.question('Do you want to delete everything in the attachments folder? (y/n): ', answer => {
-    if (answer[0].toLowerCase() ===  'y') {
+    if (answer[0].toLowerCase() === 'y') {
         console.time('time');
         cleanDirectory('./output/attachments');
         console.timeEnd('time');
@@ -31,7 +31,7 @@ function cleanDirectory(path) {
             // Remove file if not .placeholder
             if (item[0] !== '.') {
                 fs.unlinkSync(fullPath);
-                console.log(' Removed ' + item);
+                console.log('  Removed ' + item);
             }
             return;
         }
