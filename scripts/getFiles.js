@@ -17,9 +17,8 @@ const LOG_PATH = './output/log.txt';
 const MAX_RESULTS = 500;    // Maximum number of issues to return
 
 /**
- * Searches for issues matching a jql pattern
+ * Searches for issues matching a jql pattern and downloads attachments
  * @param  {String} jql JQL pattern to search
- * @return {Promise}    Promise object for search results
  */
 async function getFiles(jql) {
     const options = {
@@ -76,6 +75,7 @@ async function _downloadFiles(issues) {
             log.write('    Data written to ' + file.filename + '\n');
         }
 
+        // Update progress bar
         bar.update(index + 1, {
             issue: issue.key
         });
