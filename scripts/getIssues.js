@@ -34,8 +34,11 @@ async function getFiles(jql) {
         json: true
     };
 
+    console.log('Fetching issue data...');
+
     rp(options)
         .then(body => {
+            console.log('  Issues fetched!');
             const files = parseResponse(body.issues);
             _downloadFiles(files);
         })
