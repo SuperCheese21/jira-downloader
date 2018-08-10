@@ -3,3 +3,7 @@ textarea {
     height: 50px;
     resize: none;
 }
+
+fieldset {
+    margin: 20px 0px;
+}

@@ -11,19 +11,49 @@
     <h1>JIRA Downloader</h1>
     <!-- All of the Node.js APIs are available in this renderer process. -->
 
-    <p><strong>Enter server domain and credentials:</strong></p>
-    <p>Domain: <input type="text"></input></p>
-    <p>Username: <input type="text"></input></p>
-    <p>Password: <input type="password"></input></p>
+    <form name="downloader">
 
-    <br>
+        <fieldset>
 
-    <p><strong>Enter JQL String here:</strong></p>
-    <textarea></textarea>
+            <legend><strong>Enter server domain and credentials:</strong></legend>
+            <p>Domain: <input type="text" name="domain"></input></p>
+            <p>Username: <input type="text" name="username"></input></p>
+            <p>Password: <input type="password" name="password"></input></p>
 
-    <hr>
+        </fieldset>
 
-    <button type="button">Download attachments</button>
+        <fieldset>
+
+            <legend><strong>Enter JQL String here:</strong></legend>
+            <textarea name="jql"></textarea>
+
+        </fieldset>
+
+        <br>
+
+        <button type="submit">Download attachments</button>
+
+    </form>
+    
+    <script>
+        const form = document.forms.downloader;
+
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            handleSubmission(form);
+        });
+
+        function handleSubmission(data) {
+            const credentials = {
+                domain: form.domain.value,
+                username: form.username.value,
+                password: form.password.value
+            };
+            const jql = form.jql.value;
+            console.log(credentials);
+            console.log(jql);
+        }
+    </script>
 
 </body>
 
