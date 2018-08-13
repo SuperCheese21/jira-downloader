@@ -13,7 +13,9 @@ form.addEventListener('submit', err => {
     handleSubmission(form);
 });
 
-setDefaultCredentials(form, defaultCredentials);
+if (defaultCredentials) {
+    setDefaultCredentials(form, defaultCredentials);
+}
 
 /**
  * [handleSubmission description]

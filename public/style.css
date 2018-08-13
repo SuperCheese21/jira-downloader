@@ -1,9 +1,43 @@
-textarea {
-    width: 98%;
-    height: 50px;
-    resize: none;
+html, body {
+    height: 100%;
+}
+
+body {
+    padding: 10px 20px;
+}
+
+h1 {
+    font-size: 24px;
+    text-align: center;
 }
 
 fieldset {
     margin: 20px 0px;
+}
+
+textarea {
+    height: 200px;
+}
+
+.container {
+    font-family: arial;
+}
+
+.progress-container {
+    margin: 10px 0px 20px 0px;
+}
+
+#message {
+    font-size: 12px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+button[type=submit] {
+    margin: 10px 0px;
+}
+
+.bottom {
+    text-align: center;
 }

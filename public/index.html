@@ -4,41 +4,64 @@
 <head>
     <meta charset="UTF-8">
     <title>JIRA Downloader</title>
+
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
     <link rel="stylesheet" href="style.css">
+
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
 </head>
 
 <body>
+
     <h1>JIRA Downloader</h1>
 
-    <form name="downloader">
+    <form id="download-form" name="downloader">
 
-        <fieldset>
+        <div class="form-group">
 
-            <legend><strong>Enter server domain and credentials:</strong></legend>
-            <p>Domain: <input type="text" name="domain"></input></p>
-            <p>Username: <input type="text" name="username"></input></p>
-            <p>Password: <input type="password" name="password"></input></p>
+            <label for="domain-input">Domain</label>
+            <input type="text" class="form-control" id="domain-input" name="domain" placeholder="ex. tracker.welocalize.com"></input>
 
-        </fieldset>
+        </div>
 
-        <fieldset>
+        <div class="form-group">
 
-            <legend><strong>Enter JQL String here:</strong></legend>
-            <textarea name="jql"></textarea>
+            <label for="username-input">Username</label>
+            <input type="text" class="form-control" id="username-input" name="username"></input>
 
-        </fieldset>
+        </div>
 
-        <br />
+        <div class="form-group">
 
-        <button type="submit">Download attachments</button>
+            <label for="password-input">Password</label>
+            <input type="password" class="form-control" id="password-input" name="password"></input>
+
+        </div>
+
+        <div class="form-group">
+
+            <label for="jql-input"><strong>Enter JQL String here:</strong></label>
+            <textarea class="form-control form-control-sm" id="jql-input" name="jql" rows="4"></textarea>
+
+        </div>
 
     </form>
 
-    <br />
+    <div class="bottom">
 
-    <progress id="progressBar" value="0" max="100"></progress>
+        <button class="btn btn-outline-success" type="submit" form="download-form">Download attachments</button>
 
-    <p id="currentFile"></p>
+        <br />
+
+        <div class="progress progress-container">
+            <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%"></div>
+        </div>
+
+        <p id="message">Test</p>
+
+    </div>
 
     <script>
         require('./index.js')

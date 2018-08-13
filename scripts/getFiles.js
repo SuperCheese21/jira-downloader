@@ -27,17 +27,19 @@ async function getFiles(credentials, jql) {
         json: true
     };
 
+    _updateMessage('Fetching issue data...');
+
+    // Make request for issue data
     rp(options)
         .then(body => {
-            console.log('  Issues fetched!');
+            _updateMessage('Data fetched!');
             fs.writeFile('./config/credentials.json', JSON.stringify(credentials, null, '\t'), err => {
-                if (err) console.error(err);
+                if (err) _updateMessage(err);
             });
-            const issues = parseResponse(body.issues);
-            _downloadFiles(headers, issues);
+            _downloadFiles(headers, parseResponse(body.issues));
         })
         .catch(err => {
-            console.error('  Unable to fetch issues. Your credentials or JQL string may be invalid.');
+            _updateMessage('Unable to fetch issues. Your credentials or JQL string may be invalid.');
         });
 }
 
@@ -63,20 +65,23 @@ async function _downloadFiles(headers, issues) {
 
     fs.mkdirSync(path + '/attachments/');   // Create attachments directory
 
+    _updateProgressBar(0);
+
     // Loop through each issue in issues list
     for (const [index, issue] of issues.entries()) {
         log.write('\n' + issue.key + '\n');
         const directory = path + '/attachments/' + issue.key;
+        const progress = Math.round(100 * (index + 1) / issues.length);
 
         fs.mkdirSync(directory);    // Create directory
 
-        _updateProgressBar(index + 1, issues.length);
+        _updateProgressBar(progress);
 
         // Loop through each attachment in attachments list
         for (const file of issue.list) {
             const fileSize = Math.round(file.size / 1000);
             log.write('  Downloading ' + file.filename + ' (' + fileSize + ' kb)...' + '\n');
-            _updateCurrentFile('Downloading ' + file.filename);
+            _updateMessage('Downloading ' + file.filename);
             await _download(headers, file.content, directory + '/' + file.filename, log);
             log.write('    Data written to ' + file.filename + '\n');
         }
@@ -84,8 +89,7 @@ async function _downloadFiles(headers, issues) {
 
     log.end();  // End write stream
 
-    _updateCurrentFile('Done');
-    console.log('\nDone\nCheck log.txt for more info');
+    _updateMessage('Done! Check log.txt for more info.');
 }
 
 /**
@@ -126,22 +130,26 @@ function _getHeaders(credentials) {
 }
 
 /**
- * [_updateCurrentFile description]
+ * [_updateMessage description]
  * @param       {[type]} name [description]
  * @return      {[type]}      [description]
  */
-function _updateCurrentFile(name) {
-    document.getElementById('currentFile').innerHTML = name;
+function _updateMessage(name) {
+    document.getElementById('message').innerHTML = name;
 }
 
 /**
  * [_updateProgressBar description]
- * @param       {[type]} value [description]
- * @param       {[type]} total [description]
- * @return      {[type]}       [description]
+ * @param       {Number} progress [description]
  */
-function _updateProgressBar(value, total) {
-    document.getElementById('progressBar').value = 100 * (value / total);
+function _updateProgressBar(progress) {
+    const progressBar = document.getElementsByClassName('progress-bar')[0];
+    const text = progress + "%";
+
+    console.log(text);
+
+    progressBar.style.width = text;
+    progressBar.innerHTML = text;
 }
 
 module.exports = getFiles;
