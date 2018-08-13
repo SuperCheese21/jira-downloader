@@ -1,28 +1,24 @@
-const _cliProgress = require('cli-progress');
+const { dialog } = require('electron');
 const fs = require('fs');
 const rp = require('request-promise');
 
-const credentials = require('../config/credentials.json');
 const parseResponse = require('./parse');
 
 const api = '/rest/api/latest';
-const headers = {
-    'User-Agent': 'Request-Promise',
-    'Authorization': 'Basic ' + new Buffer(
-        credentials.username + ':' + credentials.password
-    ).toString('base64')
-};
 
 const LOG_PATH = './output/log.txt';
 const MAX_RESULTS = 500;    // Maximum number of issues to return
 
 /**
  * Searches for issues matching a jql pattern and downloads attachments
- * @param  {String} jql JQL pattern to search
+ * @param  {Object} credentials Domain, username, and password for JIRA server
+ * @param  {String} jql         JQL pattern to search
  */
-async function getFiles(jql) {
+async function getFiles(credentials, jql) {
+    const headers = _getHeaders(credentials);
+    const uri = credentials.domain + api + '/search';
     const options = {
-        uri: credentials.domain + api + '/search',
+        uri: uri.includes('://') ? uri : 'https://' + uri,
         qs: {
             jql: jql,
             startAt: 0,
@@ -33,16 +29,17 @@ async function getFiles(jql) {
         json: true
     };
 
-    console.log('\nFetching issue data...');
-
     rp(options)
         .then(body => {
             console.log('  Issues fetched!');
+            fs.writeFile('./config/credentials.json', JSON.stringify(credentials, null, '\t'), err => {
+                if (err) console.error(err);
+            });
             const files = parseResponse(body.issues);
-            _downloadFiles(files);
+            _downloadFiles(headers, files);
         })
         .catch(err => {
-            console.error('  Unable to fetch issues. Your JQL string may be invalid.');
+            console.error('  Unable to fetch issues. Your credentials or JQL string may be invalid.');
         });
 }
 
@@ -50,15 +47,10 @@ async function getFiles(jql) {
  * Creates a directory for each issue and initiates downloads
  * @param  {Array} issues  Array of issues with download links
  */
-async function _downloadFiles(issues) {
+async function _downloadFiles(headers, issues) {
     const log = fs.createWriteStream(LOG_PATH);   // Create log write stream
-    const bar = new _cliProgress.Bar({
-        format: '[{bar}] {percentage}% | ETA: {eta_formatted} | Elapsed: {duration_formatted} | Issue {value}/{total} - {issue}'
-    }, _cliProgress.Presets.shades_classic);  // Create CLI progress bar
 
     console.log('\nDownloading attachments for ' + issues.length + ' issues...');
-
-    bar.start(issues.length, 0);    // Start progress bar
 
     // Loop through each issue in issues list
     for (const [index, issue] of issues.entries()) {
@@ -74,14 +66,8 @@ async function _downloadFiles(issues) {
             await _download(file.content, directory + '/' + file.filename, log);
             log.write('    Data written to ' + file.filename + '\n');
         }
-
-        // Update progress bar
-        bar.update(index + 1, {
-            issue: issue.key
-        });
     }
 
-    bar.stop(); // End progress bar
     log.end();  // End write stream
 
     console.log('\nDone\nCheck ' + LOG_PATH + ' for more info');
@@ -93,7 +79,7 @@ async function _downloadFiles(issues) {
  * @param  {String} path     Path to write file to
  * @param  {WriteStream} log Log write stream
  */
-async function _download(url, path, log) {
+async function _download(headers, url, path, log) {
     const options = {
         uri: url,
         encoding: null,
@@ -108,6 +94,20 @@ async function _download(url, path, log) {
         .catch(err => {
             log.write(err.message + '\n');
         });
+}
+
+/**
+ * [_getHeaders description]
+ * @param       {[type]} credentials [description]
+ * @return      {[type]}             [description]
+ */
+function _getHeaders(credentials) {
+    return {
+        'User-Agent': 'Request-Promise',
+        'Authorization': 'Basic ' + new Buffer(
+            credentials.username + ':' + credentials.password
+        ).toString('base64')
+    };
 }
 
 module.exports = getFiles;

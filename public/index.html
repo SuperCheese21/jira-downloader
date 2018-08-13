@@ -9,7 +9,6 @@
 
 <body>
     <h1>JIRA Downloader</h1>
-    <!-- All of the Node.js APIs are available in this renderer process. -->
 
     <form name="downloader">
 
@@ -29,30 +28,18 @@
 
         </fieldset>
 
-        <br>
+        <br />
 
         <button type="submit">Download attachments</button>
 
     </form>
-    
+
+    <br />
+
+    <progress name="progressBar" value="0" max="100" />
+
     <script>
-        const form = document.forms.downloader;
-
-        form.addEventListener('submit', (e) => {
-            e.preventDefault();
-            handleSubmission(form);
-        });
-
-        function handleSubmission(data) {
-            const credentials = {
-                domain: form.domain.value,
-                username: form.username.value,
-                password: form.password.value
-            };
-            const jql = form.jql.value;
-            console.log(credentials);
-            console.log(jql);
-        }
+        require('./index.js')
     </script>
 
 </body>
