@@ -4,6 +4,7 @@ html, body {
 
 body {
     padding: 10px 20px;
+    background-color: #e0e0e0;
 }
 
 h1 {
@@ -17,10 +18,6 @@ fieldset {
 
 textarea {
     height: 200px;
-}
-
-.container {
-    font-family: arial;
 }
 
 .progress-container {
