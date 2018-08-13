@@ -125,23 +125,22 @@ function _getHeaders(credentials) {
 }
 
 /**
- * [_updateProgressBar description]
- * @param       {[type]} value [description]
- * @param       {[type]} total [description]
- * @return      {[type]}       [description]
- */
-function _updateProgressBar(value, total) {
-    const bar = document.getElementById('progressBar');
-    bar.value = 100 * (value / total);
-}
-
-/**
  * [_updateCurrentFile description]
  * @param       {[type]} name [description]
  * @return      {[type]}      [description]
  */
 function _updateCurrentFile(name) {
     document.getElementById('currentFile').innerHTML = name;
+}
+
+/**
+ * [_updateProgressBar description]
+ * @param       {[type]} value [description]
+ * @param       {[type]} total [description]
+ * @return      {[type]}       [description]
+ */
+function _updateProgressBar(value, total) {
+    document.getElementById('progressBar').value = 100 * (value / total);
 }
 
 module.exports = getFiles;
