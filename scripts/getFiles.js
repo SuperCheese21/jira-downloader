@@ -84,6 +84,7 @@ async function _downloadFiles(headers, issues) {
 
     log.end();  // End write stream
 
+    _updateCurrentFile('Done');
     console.log('\nDone\nCheck log.txt for more info');
 }
 
