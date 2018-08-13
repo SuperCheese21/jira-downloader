@@ -28,11 +28,13 @@ async function getFiles(credentials, jql) {
     };
 
     _updateMessage('Fetching issue data...');
+    _showSpinner();
 
     // Make request for issue data
     rp(options)
         .then(body => {
             _updateMessage('Data fetched!');
+            _hideSpinner();
             fs.writeFile('./config/credentials.json', JSON.stringify(credentials, null, '\t'), err => {
                 if (err) _updateMessage(err);
             });
@@ -150,6 +152,16 @@ function _updateProgressBar(progress) {
 
     progressBar.style.width = text;
     progressBar.innerHTML = text;
+}
+
+function _showSpinner() {
+    const spinner = document.getElementById('spinner');
+    spinner.style.display = 'inline-block';
+}
+
+function _hideSpinner() {
+    const spinner = document.getElementById('spinner');
+    spinner.style.display = 'none';
 }
 
 module.exports = getFiles;

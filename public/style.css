@@ -18,17 +18,21 @@ fieldset {
 
 textarea {
     height: 200px;
+    resize: none;
 }
 
 .progress-container {
     margin: 10px 0px 20px 0px;
+    background-color: #e0e0e0;
 }
 
 #message {
-    font-size: 12px;
+    font-size: 15px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    display: inline-block;
+    margin: 0px;
 }
 
 button[type=submit] {
@@ -37,4 +41,19 @@ button[type=submit] {
 
 .bottom {
     text-align: center;
+}
+
+#spinner {
+    border: 3px solid #f3f3f3;
+    border-top: 3px solid #3498db;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    animation: spin 2s linear infinite;
+    display: none;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
 }
