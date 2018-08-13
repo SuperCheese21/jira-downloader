@@ -1,12 +1,10 @@
-const { dialog } = require('electron');
+const { dialog } = require('electron').remote;
 const fs = require('fs');
 const rp = require('request-promise');
 
 const parseResponse = require('./parse');
 
-const api = '/rest/api/latest';
-
-const LOG_PATH = './output/log.txt';
+const API = '/rest/api/latest';
 const MAX_RESULTS = 500;    // Maximum number of issues to return
 
 /**
@@ -16,7 +14,7 @@ const MAX_RESULTS = 500;    // Maximum number of issues to return
  */
 async function getFiles(credentials, jql) {
     const headers = _getHeaders(credentials);
-    const uri = credentials.domain + api + '/search';
+    const uri = credentials.domain + API + '/search';
     const options = {
         uri: uri.includes('://') ? uri : 'https://' + uri,
         qs: {
@@ -35,8 +33,8 @@ async function getFiles(credentials, jql) {
             fs.writeFile('./config/credentials.json', JSON.stringify(credentials, null, '\t'), err => {
                 if (err) console.error(err);
             });
-            const files = parseResponse(body.issues);
-            _downloadFiles(headers, files);
+            const issues = parseResponse(body.issues);
+            _downloadFiles(headers, issues);
         })
         .catch(err => {
             console.error('  Unable to fetch issues. Your credentials or JQL string may be invalid.');
@@ -44,44 +42,60 @@ async function getFiles(credentials, jql) {
 }
 
 /**
+ * [_createOutputDirectory description]
+ * @return      {[type]} [description]
+ */
+function _createOutputDirectory() {
+    return dialog.showOpenDialog({
+        buttonLabel: 'Select',
+        properties: ['openDirectory'],
+        message: 'Select a directory to download attachments to'
+    })[0];
+}
+
+/**
  * Creates a directory for each issue and initiates downloads
  * @param  {Array} issues  Array of issues with download links
  */
 async function _downloadFiles(headers, issues) {
-    const log = fs.createWriteStream(LOG_PATH);   // Create log write stream
+    const path = _createOutputDirectory();
+    const log = fs.createWriteStream(path + '/log.txt');   // Create log write stream
 
-    console.log('\nDownloading attachments for ' + issues.length + ' issues...');
+    fs.mkdirSync(path + '/attachments/');   // Create attachments directory
 
     // Loop through each issue in issues list
     for (const [index, issue] of issues.entries()) {
         log.write('\n' + issue.key + '\n');
-        const directory = './output/attachments/' + issue.key;
+        const directory = path + '/attachments/' + issue.key;
 
         fs.mkdirSync(directory);    // Create directory
+
+        _updateProgressBar(index + 1, issues.length);
 
         // Loop through each attachment in attachments list
         for (const file of issue.list) {
             const fileSize = Math.round(file.size / 1000);
             log.write('  Downloading ' + file.filename + ' (' + fileSize + ' kb)...' + '\n');
-            await _download(file.content, directory + '/' + file.filename, log);
+            _updateCurrentFile('Downloading ' + file.filename);
+            await _download(headers, file.content, directory + '/' + file.filename, log);
             log.write('    Data written to ' + file.filename + '\n');
         }
     }
 
     log.end();  // End write stream
 
-    console.log('\nDone\nCheck ' + LOG_PATH + ' for more info');
+    console.log('\nDone\nCheck log.txt for more info');
 }
 
 /**
  * Downloads file from url to specified path
- * @param  {String} url      File URL
+ * @param  {String} uri      File URI
  * @param  {String} path     Path to write file to
  * @param  {WriteStream} log Log write stream
  */
-async function _download(headers, url, path, log) {
+async function _download(headers, uri, path, log) {
     const options = {
-        uri: url,
+        uri: uri,
         encoding: null,
         headers: headers
     };
@@ -108,6 +122,26 @@ function _getHeaders(credentials) {
             credentials.username + ':' + credentials.password
         ).toString('base64')
     };
+}
+
+/**
+ * [_updateProgressBar description]
+ * @param       {[type]} value [description]
+ * @param       {[type]} total [description]
+ * @return      {[type]}       [description]
+ */
+function _updateProgressBar(value, total) {
+    const bar = document.getElementById('progressBar');
+    bar.value = 100 * (value / total);
+}
+
+/**
+ * [_updateCurrentFile description]
+ * @param       {[type]} name [description]
+ * @return      {[type]}      [description]
+ */
+function _updateCurrentFile(name) {
+    document.getElementById('currentFile').innerHTML = name;
 }
 
 module.exports = getFiles;
