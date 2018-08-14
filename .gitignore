@@ -65,3 +65,4 @@ output/*
 !.placeholder
 
 .DS_Store
+dist/*

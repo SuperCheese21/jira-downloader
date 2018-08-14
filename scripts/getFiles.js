@@ -154,14 +154,22 @@ function _updateProgressBar(progress) {
     progressBar.innerHTML = text;
 }
 
-function _showSpinner() {
-    const spinner = document.getElementById('spinner');
-    spinner.style.display = 'inline-block';
-}
-
+/**
+ * [_hideSpinner description]
+ * @return      {[type]} [description]
+ */
 function _hideSpinner() {
     const spinner = document.getElementById('spinner');
     spinner.style.display = 'none';
+}
+
+/**
+ * [_showSpinner description]
+ * @return      {[type]} [description]
+ */
+function _showSpinner() {
+    const spinner = document.getElementById('spinner');
+    spinner.style.display = 'inline-block';
 }
 
 module.exports = getFiles;

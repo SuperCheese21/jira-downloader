@@ -8,9 +8,11 @@ let mainWindow;
 function createWindow() {
     // Create the browser window.
     mainWindow = new BrowserWindow({
+        title: 'JIRA Downloader',
         width: 450,
         height: 650,
         center: true,
+        autoHideMenuBar: true,
         resizable: false,
         backgroundColor: '#e0e0e0'
     });
