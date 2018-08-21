@@ -27,6 +27,7 @@ async function getFiles(credentials, jql) {
         json: true
     };
 
+    _hideProgressBar();
     _updateMessage('Fetching issue data...');
     _showSpinner();
 
@@ -34,14 +35,14 @@ async function getFiles(credentials, jql) {
     rp(options)
         .then(body => {
             _updateMessage('Data fetched!');
-            _hideSpinner();
             fs.writeFile('./config/credentials.json', JSON.stringify(credentials, null, '\t'), err => {
                 if (err) _updateMessage(err);
             });
             _downloadFiles(headers, parseResponse(body.issues));
         })
         .catch(err => {
-            _updateMessage('Unable to fetch issues. Your credentials or JQL string may be invalid.');
+            // _updateMessage(err);
+            _updateMessage('Error: Invalid credentials or JQL String.');
         });
 }
 
@@ -67,7 +68,8 @@ async function _downloadFiles(headers, issues) {
 
     fs.mkdirSync(path + '/attachments/');   // Create attachments directory
 
-    _updateProgressBar(0);
+    _showCancelButton();
+    _showProgressBar();
 
     // Loop through each issue in issues list
     for (const [index, issue] of issues.entries()) {
@@ -91,6 +93,7 @@ async function _downloadFiles(headers, issues) {
 
     log.end();  // End write stream
 
+    _showDownloadButton();
     _updateMessage('Done! Check log.txt for more info.');
 }
 
@@ -137,6 +140,7 @@ function _getHeaders(credentials) {
  * @return      {[type]}      [description]
  */
 function _updateMessage(name) {
+    _hideSpinner();
     document.getElementById('message').innerHTML = name;
 }
 
@@ -156,7 +160,6 @@ function _updateProgressBar(progress) {
 
 /**
  * [_hideSpinner description]
- * @return      {[type]} [description]
  */
 function _hideSpinner() {
     const spinner = document.getElementById('spinner');
@@ -165,11 +168,47 @@ function _hideSpinner() {
 
 /**
  * [_showSpinner description]
- * @return      {[type]} [description]
  */
 function _showSpinner() {
     const spinner = document.getElementById('spinner');
     spinner.style.display = 'inline-block';
+}
+
+/**
+ * [_hideProgressBar description]
+ */
+function _hideProgressBar() {
+    const progressBar = document.getElementsByClassName('progress-container')[0];
+    progressBar.style.display = 'none';
+}
+
+/**
+ * [_showProgressBar description]
+ */
+function _showProgressBar() {
+    const progressBar = document.getElementsByClassName('progress-container')[0];
+    progressBar.style.display = 'block';
+    _updateProgressBar(0);
+}
+
+/**
+ * [_showDownloadButton description]
+ */
+function _showDownloadButton() {
+    const downloadButton = document.getElementsByClassName('download-button')[0];
+    const cancelButton = document.getElementsByClassName('cancel-button')[0];
+    cancelButton.style.display = 'none';
+    downloadButton.style.display = 'block';
+}
+
+/**
+ * [_showDownloadButton description]
+ */
+function _showCancelButton() {
+    const downloadButton = document.getElementsByClassName('download-button')[0];
+    const cancelButton = document.getElementsByClassName('cancel-button')[0];
+    downloadButton.style.display = 'none';
+    cancelButton.style.display = 'block';
 }
 
 module.exports = getFiles;

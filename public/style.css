@@ -23,19 +23,19 @@ textarea {
 
 .progress-container {
     margin: 10px 0px 20px 0px;
-    background-color: #e0e0e0;
+    background-color: #c0c0c0;
 }
 
 #message {
     font-size: 15px;
     white-space: nowrap;
+    width: 100%;
     overflow: hidden;
     text-overflow: ellipsis;
-    display: inline-block;
     margin: 0px;
 }
 
-button[type=submit] {
+.cancel-button, .download-button {
     margin: 10px 0px;
 }
 

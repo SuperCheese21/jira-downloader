@@ -51,7 +51,8 @@
 
     <div class="bottom">
 
-        <button class="btn btn-outline-success" type="submit" form="download-form">Download attachments</button>
+        <button class="btn btn-outline-success download-button" type="submit" form="download-form">Download attachments</button>
+        <button class="btn btn-outline-danger cancel-button" style="display: none;">Cancel</button>
 
         <br />
 
@@ -60,7 +61,7 @@
             <p id="message"></p>
         </div>
 
-        <div class="progress progress-container">
+        <div class="progress progress-container" style="display: none;">
             <div class="progress-bar progress-bar-animated" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%"></div>
         </div>
 
