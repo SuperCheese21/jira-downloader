@@ -2,6 +2,10 @@ const { app, BrowserWindow, Menu } = require('electron');
 
 let mainWindow;
 
+/**
+ * [createWindow description]
+ * @return {[type]} [description]
+ */
 function createWindow() {
     mainWindow = new BrowserWindow({
         title: 'JIRA Downloader',
@@ -13,13 +17,13 @@ function createWindow() {
         backgroundColor: '#e0e0e0'
     });
 
+    Menu.setApplicationMenu(getMenu());
+
     mainWindow.loadFile('./public/index.html');
 
     mainWindow.on('closed', function() {
         mainWindow = null;
     });
-
-    mainWindow.setMenu(getMenu());
 }
 
 app.on('ready', createWindow);
@@ -36,6 +40,10 @@ app.on('activate', function() {
     }
 });
 
+/**
+ * [getMenu description]
+ * @return {[type]} [description]
+ */
 function getMenu() {
     const template = [
         {
@@ -161,8 +169,5 @@ function getMenu() {
         ]
     }
 
-    const menu = Menu.buildFromTemplate(template);
-    Menu.setApplicationMenu(menu);
-
-    return menu;
+    return Menu.buildFromTemplate(template);
 }

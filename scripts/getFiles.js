@@ -31,17 +31,12 @@ async function getFiles(credentials, jql) {
     _updateMessage('Fetching issue data...');
     _showSpinner();
 
-    // Make request for issue data
     rp(options)
         .then(body => {
             _updateMessage('Data fetched!');
-            fs.writeFile('./config/credentials.json', JSON.stringify(credentials, null, '\t'), err => {
-                if (err) _updateMessage(err);
-            });
             _downloadFiles(headers, parseResponse(body.issues));
         })
         .catch(err => {
-            // _updateMessage(err);
             _updateMessage('Error: Invalid credentials or JQL String.');
         });
 }

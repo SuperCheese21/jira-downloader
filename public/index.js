@@ -1,10 +1,5 @@
-// This file is required by the index.html file and will
-// be executed in the renderer process for that window.
-// All of the Node.js APIs are available in this process.
-
 const fs = require('fs');
 
-const defaultCredentials = require('../config/credentials.json');
 const getFiles = require('../scripts/getFiles');
 
 const form = document.forms.downloader;
@@ -13,9 +8,12 @@ form.addEventListener('submit', err => {
     handleSubmission(form);
 });
 
-if (defaultCredentials) {
-    setDefaultCredentials(form, defaultCredentials);
-}
+let credentials = {
+    domain: "",
+    username: "",
+    password: ""
+};
+setCredentials(form, credentials);
 
 /**
  * [handleSubmission description]
@@ -32,12 +30,12 @@ function handleSubmission(data) {
 }
 
 /**
- * [setDefaultCredentials description]
- * @param {[type]} form               [description]
- * @param {[type]} defaultCredentials [description]
+ * [setCredentials description]
+ * @param {[type]} form         [description]
+ * @param {[type]} credentials  [description]
  */
-function setDefaultCredentials(form, defaultCredentials) {
-    form.domain.value = defaultCredentials.domain;
-    form.username.value = defaultCredentials.username;
-    form.password.value = defaultCredentials.password;
+function setCredentials(form, credentials) {
+    form.domain.value = credentials.domain;
+    form.username.value = credentials.username;
+    form.password.value = credentials.password;
 }
