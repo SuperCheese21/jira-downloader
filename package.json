@@ -19,6 +19,7 @@
   },
   "homepage": "https://github.com/SuperCheese21/jira-downloader#readme",
   "dependencies": {
+    "electron-settings": "^3.2.0",
     "request": "^2.87.0",
     "request-promise": "^4.2.2"
   },

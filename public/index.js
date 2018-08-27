@@ -1,19 +1,27 @@
+const settings = require('electron-settings');
 const fs = require('fs');
 
 const getFiles = require('../scripts/getFiles');
 
 const form = document.forms.downloader;
+let credentials;
+
+if (settings.has('credentials')) {
+    credentials = settings.get('credentials');
+} else {
+    credentials = {
+        domain: '',
+        username: '',
+        password: ''
+    };
+}
+
+setCredentials(form, credentials);
+
 form.addEventListener('submit', err => {
     err.preventDefault();
     handleSubmission(form);
 });
-
-let credentials = {
-    domain: "",
-    username: "",
-    password: ""
-};
-setCredentials(form, credentials);
 
 /**
  * [handleSubmission description]

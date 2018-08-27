@@ -1,4 +1,5 @@
 const { dialog } = require('electron').remote;
+const settings = require('electron-settings');
 const fs = require('fs');
 const rp = require('request-promise');
 
@@ -33,7 +34,7 @@ async function getFiles(credentials, jql) {
 
     rp(options)
         .then(body => {
-            _updateMessage('Data fetched!');
+            settings.set('credentials', credentials);
             _downloadFiles(headers, parseResponse(body.issues));
         })
         .catch(err => {
@@ -146,8 +147,6 @@ function _updateMessage(name) {
 function _updateProgressBar(progress) {
     const progressBar = document.getElementsByClassName('progress-bar')[0];
     const text = progress + "%";
-
-    console.log(text);
 
     progressBar.style.width = text;
     progressBar.innerHTML = text;
