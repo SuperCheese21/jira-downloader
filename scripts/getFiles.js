@@ -5,8 +5,10 @@ const rp = require('request-promise');
 
 const parseResponse = require('./parse');
 
-const API = '/rest/api/latest';
+const API = '/rest/api/latest/search';
 const MAX_RESULTS = 500;    // Maximum number of issues to return
+
+const cancelButton = document.getElementsByClassName('cancel-button')[0];
 
 /**
  * Searches for issues matching a jql pattern and downloads attachments
@@ -15,7 +17,7 @@ const MAX_RESULTS = 500;    // Maximum number of issues to return
  */
 async function getFiles(credentials, jql) {
     const headers = _getHeaders(credentials);
-    const uri = credentials.domain + API + '/search';
+    const uri = credentials.domain + API;
     const options = {
         uri: uri.includes('://') ? uri : 'https://' + uri,
         qs: {
@@ -28,7 +30,6 @@ async function getFiles(credentials, jql) {
         json: true
     };
 
-    _hideProgressBar();
     _updateMessage('Fetching issue data...');
     _showSpinner();
 
@@ -43,54 +44,52 @@ async function getFiles(credentials, jql) {
 }
 
 /**
- * [_createOutputDirectory description]
- * @return      {[type]} [description]
- */
-function _createOutputDirectory() {
-    return dialog.showOpenDialog({
-        buttonLabel: 'Select',
-        properties: ['openDirectory'],
-        message: 'Select a directory to download attachments to'
-    })[0];
-}
-
-/**
  * Creates a directory for each issue and initiates downloads
  * @param  {Array} issues  Array of issues with download links
  */
 async function _downloadFiles(headers, issues) {
-    const path = _createOutputDirectory();
+    const path = _selectOutputDirectory();
     const log = fs.createWriteStream(path + '/log.txt');   // Create log write stream
-
     fs.mkdirSync(path + '/attachments/');   // Create attachments directory
 
-    _showCancelButton();
-    _showProgressBar();
+    let message = 'Done! Check log.txt for more info.';
+    let cancel = false;
+    cancelButton.addEventListener('click', () => {  // Add event listener to cancel button
+        cancel = true;
+    });
+
+    _showProgressBar(); // show progress bar and hide download button
 
     // Loop through each issue in issues list
+    issues:
     for (const [index, issue] of issues.entries()) {
         log.write('\n' + issue.key + '\n');
         const directory = path + '/attachments/' + issue.key;
         const progress = Math.round(100 * (index + 1) / issues.length);
 
+        _updateProgressBar(progress);   // Update progress bar
+
         fs.mkdirSync(directory);    // Create directory
 
-        _updateProgressBar(progress);
-
         // Loop through each attachment in attachments list
+        files:
         for (const file of issue.list) {
             const fileSize = Math.round(file.size / 1000);
             log.write('  Downloading ' + file.filename + ' (' + fileSize + ' kb)...' + '\n');
             _updateMessage('Downloading ' + file.filename);
             await _download(headers, file.content, directory + '/' + file.filename, log);
             log.write('    Data written to ' + file.filename + '\n');
+            if (cancel) {
+                message = 'Download canceled';
+                break issues;
+            }
         }
     }
 
     log.end();  // End write stream
 
-    _showDownloadButton();
-    _updateMessage('Done! Check log.txt for more info.');
+    _hideProgressBar(); // hide progress bar and show download button
+    _updateMessage(message);
 }
 
 /**
@@ -114,6 +113,18 @@ async function _download(headers, uri, path, log) {
         .catch(err => {
             log.write(err.message + '\n');
         });
+}
+
+/**
+ * [_selectOutputDirectory description]
+ * @return      {[type]} [description]
+ */
+function _selectOutputDirectory() {
+    return dialog.showOpenDialog({
+        buttonLabel: 'Select',
+        properties: ['openDirectory'],
+        message: 'Select a directory to download attachments to'
+    })[0];
 }
 
 /**
@@ -165,6 +176,7 @@ function _hideSpinner() {
  */
 function _showSpinner() {
     const spinner = document.getElementById('spinner');
+    _hideProgressBar();
     spinner.style.display = 'inline-block';
 }
 
@@ -172,37 +184,26 @@ function _showSpinner() {
  * [_hideProgressBar description]
  */
 function _hideProgressBar() {
+    const downloadButton = document.getElementsByClassName('download-button')[0];
     const progressBar = document.getElementsByClassName('progress-container')[0];
+
     progressBar.style.display = 'none';
+    cancelButton.style.display = 'none';
+    downloadButton.style.display = null;
 }
 
 /**
  * [_showProgressBar description]
  */
 function _showProgressBar() {
+    const downloadButton = document.getElementsByClassName('download-button')[0];
     const progressBar = document.getElementsByClassName('progress-container')[0];
-    progressBar.style.display = 'block';
-    _updateProgressBar(0);
-}
 
-/**
- * [_showDownloadButton description]
- */
-function _showDownloadButton() {
-    const downloadButton = document.getElementsByClassName('download-button')[0];
-    const cancelButton = document.getElementsByClassName('cancel-button')[0];
-    cancelButton.style.display = 'none';
-    downloadButton.style.display = null;
-}
-
-/**
- * [_showDownloadButton description]
- */
-function _showCancelButton() {
-    const downloadButton = document.getElementsByClassName('download-button')[0];
-    const cancelButton = document.getElementsByClassName('cancel-button')[0];
     downloadButton.style.display = 'none';
     cancelButton.style.display = null;
+    progressBar.style.display = null;
+
+    _updateProgressBar(0);
 }
 
 module.exports = getFiles;
