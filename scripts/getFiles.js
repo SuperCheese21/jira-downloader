@@ -192,7 +192,7 @@ function _showDownloadButton() {
     const downloadButton = document.getElementsByClassName('download-button')[0];
     const cancelButton = document.getElementsByClassName('cancel-button')[0];
     cancelButton.style.display = 'none';
-    downloadButton.style.display = 'block';
+    downloadButton.style.display = null;
 }
 
 /**
@@ -202,7 +202,7 @@ function _showCancelButton() {
     const downloadButton = document.getElementsByClassName('download-button')[0];
     const cancelButton = document.getElementsByClassName('cancel-button')[0];
     downloadButton.style.display = 'none';
-    cancelButton.style.display = 'block';
+    cancelButton.style.display = null;
 }
 
 module.exports = getFiles;
