@@ -1,3 +1,4 @@
+const $ = require('jquery');
 const { dialog } = require('electron').remote;
 const settings = require('electron-settings');
 const fs = require('fs');
@@ -7,8 +8,6 @@ const parseResponse = require('./parse');
 
 const API = '/rest/api/latest/search';
 const MAX_RESULTS = 500;    // Maximum number of issues to return
-
-const cancelButton = document.getElementsByClassName('cancel-button')[0];
 
 /**
  * Searches for issues matching a jql pattern and downloads attachments
@@ -54,7 +53,8 @@ async function _downloadFiles(headers, issues) {
 
     let message = 'Done! Check log.txt for more info.';
     let cancel = false;
-    cancelButton.addEventListener('click', () => {  // Add event listener to cancel button
+    $('.cancel-button').click(() => {
+        message = 'Download canceled';
         cancel = true;
     });
 
@@ -63,10 +63,10 @@ async function _downloadFiles(headers, issues) {
     // Loop through each issue in issues list
     issues:
     for (const [index, issue] of issues.entries()) {
-        log.write('\n' + issue.key + '\n');
         const directory = path + '/attachments/' + issue.key;
         const progress = Math.round(100 * (index + 1) / issues.length);
 
+        log.write('\n' + issue.key + '\n');
         _updateProgressBar(progress);   // Update progress bar
 
         fs.mkdirSync(directory);    // Create directory
@@ -74,15 +74,12 @@ async function _downloadFiles(headers, issues) {
         // Loop through each attachment in attachments list
         files:
         for (const file of issue.list) {
-            const fileSize = Math.round(file.size / 1000);
-            log.write('  Downloading ' + file.filename + ' (' + fileSize + ' kb)...' + '\n');
+            log.write('  Downloading ' + file.filename + ' (' + Math.round(file.size / 1000) + ' kb)...' + '\n');
             _updateMessage('Downloading ' + file.filename);
             await _download(headers, file.content, directory + '/' + file.filename, log);
             log.write('    Data written to ' + file.filename + '\n');
-            if (cancel) {
-                message = 'Download canceled';
-                break issues;
-            }
+
+            if (cancel) break issues;
         }
     }
 
@@ -147,8 +144,10 @@ function _getHeaders(credentials) {
  * @return      {[type]}      [description]
  */
 function _updateMessage(name) {
-    _hideSpinner();
-    document.getElementById('message').innerHTML = name;
+    console.log('_updateMessage(' + name + ')');
+    $('#spinner').css('display', 'none');
+    $('#message').text(name);
+    console.log('');
 }
 
 /**
@@ -156,53 +155,38 @@ function _updateMessage(name) {
  * @param       {Number} progress [description]
  */
 function _updateProgressBar(progress) {
-    const progressBar = document.getElementsByClassName('progress-bar')[0];
+    console.log('_updateProgressBar(' + progress + ')');
     const text = progress + "%";
-
-    progressBar.style.width = text;
-    progressBar.innerHTML = text;
-}
-
-/**
- * [_hideSpinner description]
- */
-function _hideSpinner() {
-    const spinner = document.getElementById('spinner');
-    spinner.style.display = 'none';
+    $('.progress-bar')
+        .css('width', text)
+        .text(text);
 }
 
 /**
  * [_showSpinner description]
  */
 function _showSpinner() {
-    const spinner = document.getElementById('spinner');
+    console.log('_showSpinner()');
     _hideProgressBar();
-    spinner.style.display = 'inline-block';
+    $('#spinner').css('display', 'inline-block');
 }
 
 /**
  * [_hideProgressBar description]
  */
 function _hideProgressBar() {
-    const downloadButton = document.getElementsByClassName('download-button')[0];
-    const progressBar = document.getElementsByClassName('progress-container')[0];
-
-    progressBar.style.display = 'none';
-    cancelButton.style.display = 'none';
-    downloadButton.style.display = null;
+    console.log('_hideProgressBar()');
+    $('.progress-container, .cancel-button').css('display', 'none');
+    $('.download-button').css('display', null);
 }
 
 /**
  * [_showProgressBar description]
  */
 function _showProgressBar() {
-    const downloadButton = document.getElementsByClassName('download-button')[0];
-    const progressBar = document.getElementsByClassName('progress-container')[0];
-
-    downloadButton.style.display = 'none';
-    cancelButton.style.display = null;
-    progressBar.style.display = null;
-
+    console.log('_showProgressBar()');
+    $('.download-button').css('display', 'none');
+    $('.cancel-button, .progress-container').css('display', null);
     _updateProgressBar(0);
 }
 
