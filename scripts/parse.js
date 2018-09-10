@@ -4,27 +4,22 @@
  * @return {Array}      Array of issues each with an array of attachments
  */
 function parseResponse(data) {
-    let attachments = [];
-    data.forEach(issue => {
+    return data.reduce((attachments, issue) => {
         const attachment = issue.fields.attachment;
         if (attachment && attachment.length > 0) {
-            let list = [];
-            attachment.forEach(file => {
-                list.push({
-                    id: file.id,
-                    size: file.size,
-                    filename: file.filename,
-                    content: file.content
-                });
-            });
             attachments.push({
                 id: issue.id,
                 key: issue.key,
-                list: list
+                list: attachment.map(file => ({
+                    id: file.id,
+                    key: issue.key,
+                    filename: file.filename,
+                    content: file.content
+                }))
             });
         }
-    });
-    return attachments;
+        return attachments;
+    }, []);
 }
 
 module.exports = parseResponse;
